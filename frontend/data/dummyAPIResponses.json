@@ -1,0 +1,47 @@
+{
+    "messages": [
+      {
+        "id": "msg_1",
+        "role": "user",
+        "content": "Hey, can you explain how streaming works in chat apps and maybe show an example?",
+        "status": "completed"
+      },
+      {
+        "id": "msg_2",
+        "role": "assistant",
+        "content": "Absolutely! Streaming in chat applications refers to sending the response from the server to the client in small chunks rather than waiting for the entire response to be generated.\n\nThis improves perceived performance because users start seeing the response immediately.\n\n### Key Concepts:\n1. Chunked transfer\n2. Server-Sent Events (SSE)\n3. WebSockets\n\nIn modern AI apps, streaming is commonly implemented using `fetch` with a readable stream or via SSE.\n\nLet me know if you'd like a code example.",
+        "status": "completed"
+      },
+      {
+        "id": "msg_3",
+        "role": "user",
+        "content": "Yes, show me a real example using JavaScript (frontend + backend if possible).",
+        "status": "completed"
+      },
+      {
+        "id": "msg_4",
+        "role": "assistant",
+        "content": "Great, let's walk through a simple example of streaming using Node.js (backend) and Fetch API (frontend).\n\n---\n\n## 🧠 Backend (Node.js with Express)\n\n```js\nimport express from \"express\";\n\nconst app = express();\n\napp.get(\"/stream\", (req, res) => {\n  res.setHeader(\"Content-Type\", \"text/plain\");\n  res.setHeader(\"Transfer-Encoding\", \"chunked\");\n\n  let count = 0;\n  const interval = setInterval(() => {\n    count++;\n    res.write(`Chunk ${count}\\n`);\n\n    if (count === 5) {\n      clearInterval(interval);\n      res.end(\"\\nDone streaming!\");\n    }\n  }, 1000);\n});\n\napp.listen(3000, () => console.log(\"Server running on port 3000\"));\n```\n\n---\n\n## 🌐 Frontend (Fetch Streaming)\n\n```js\nasync function fetchStream() {\n  const response = await fetch(\"http://localhost:3000/stream\");\n  const reader = response.body.getReader();\n  const decoder = new TextDecoder();\n\n  let result = \"\";\n\n  while (true) {\n    const { done, value } = await reader.read();\n    if (done) break;\n\n    const chunk = decoder.decode(value);\n    result += chunk;\n\n    console.log(\"Received chunk:\", chunk);\n  }\n\n  console.log(\"Final result:\", result);\n}\n\nfetchStream();\n```\n\n---\n\n## 🚀 How This Maps to Chat UI\n\nIn your chat UI:\n- You create a message with `status: \"streaming\"`\n- Append chunks as they arrive\n- Mark it as `completed` when done\n\nThis approach is exactly how modern AI chat apps (like ChatGPT, Claude, etc.) work under the hood.\n\nLet me know if you want a React/Zustand example next 👍",
+        "status": "completed"
+      },
+      {
+        "id": "msg_5",
+        "role": "user",
+        "content": "Also show how state updates during streaming.",
+        "status": "completed"
+      },
+      {
+        "id": "msg_6",
+        "role": "assistant",
+        "content": "Nice, this is where most people mess up—state updates during streaming need to be incremental.\n\nHere’s a clean approach using a reducer-style update:\n\n```ts\nfunction appendChunk(state, messageId, chunk) {\n  return {\n    ...state,\n    messages: state.messages.map(msg =>\n      msg.id === messageId\n        ? { ...msg, content: msg.content + chunk }\n        : msg\n    )\n  };\n}\n```\n\n### Flow:\n1. User sends message\n2. Add assistant message with `status: \"streaming\"`\n3. As chunks arrive → append content\n4. When done → set `status: \"completed\"`\n\n### Important Tips:\n- Never replace the whole message—always append\n- Keep `currentStreamMessageId`\n- Handle abort using `AbortController`\n\nIf you want production-level architecture (React + hooks + streaming), I can walk you through that too.",
+        "status": "streaming"
+      }
+    ],
+    "currentStreamMessageId": "msg_6",
+    "isStreaming": true,
+    "error": null,
+    "abortController": {
+      "signal": null,
+      "aborted": false
+    }
+  }
