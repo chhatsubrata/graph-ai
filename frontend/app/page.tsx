@@ -1,9 +1,7 @@
-import MainSection from '@/components/Home/MainSection'
+import MainSection from "@/components/Home/MainSection"
 
 const page = () => {
-  return (
-    <MainSection />
-  )
+  return <MainSection />
 }
 
 export default page

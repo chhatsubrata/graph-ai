@@ -1,12 +1,8 @@
 "use client"
 
-import {
-  ArrowUpRight,
-  Link,
-  MoreHorizontal,
-  StarOff,
-  Trash2,
-} from "lucide-react"
+import { ArrowUpRight, MoreHorizontal, StarOff, Trash2 } from "lucide-react"
+
+import { CopyLinkDropdownMenuItem } from "@/components/ui/copy-icon-button"
 
 import {
   DropdownMenu,
@@ -65,10 +61,7 @@ export function NavFavorites({
                   <span>Remove from Favorites</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Link className="text-muted-foreground" />
-                  <span>Copy Link</span>
-                </DropdownMenuItem>
+                <CopyLinkDropdownMenuItem href={item.url} />
                 <DropdownMenuItem>
                   <ArrowUpRight className="text-muted-foreground" />
                   <span>Open in New Tab</span>
