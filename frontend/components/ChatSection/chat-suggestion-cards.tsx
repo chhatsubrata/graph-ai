@@ -2,6 +2,9 @@
 
 import { Brain, CheckCircle2, RefreshCw } from "lucide-react"
 
+import { setComposerPrompt } from "@/features/chat/state/chatSlice"
+import { useAppDispatch } from "@/lib/store"
+
 const suggestionCards = [
   {
     title: "Synthesize Data",
@@ -20,12 +23,29 @@ const suggestionCards = [
   },
 ]
 
-export function ChatSuggestionCards() {
+export type ChatSuggestionCardsProps = {
+  chatId: string
+  onAfterPick?: () => void
+}
+
+export function ChatSuggestionCards({ chatId, onAfterPick }: ChatSuggestionCardsProps) {
+  const dispatch = useAppDispatch()
+
   return (
     <div className="mt-5 grid gap-3 md:grid-cols-3">
       {suggestionCards.map((card) => (
         <button
           key={card.title}
+          type="button"
+          onClick={() => {
+            dispatch(
+              setComposerPrompt({
+                chatId,
+                text: card.description,
+              })
+            )
+            onAfterPick?.()
+          }}
           className="rounded-2xl border border-border bg-background p-4 text-left shadow-sm transition hover:bg-muted"
         >
           <card.icon className="size-4 text-muted-foreground" />

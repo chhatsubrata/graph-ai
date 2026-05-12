@@ -1,7 +1,7 @@
 type MessageRole = "user" | "assistant" | "tool" | "system";
 type MessageStatus = "pending" | "streaming" | "completed" | "error";
 
-interface Message {
+interface LegacyChatMessage {
   id: string;
   conversationId: string;
   role: MessageRole;

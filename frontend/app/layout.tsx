@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Noto_Serif_Georgian, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/theme-provider";
+import { ReduxProvider } from "@/components/providers/redux-provider";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -29,11 +30,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} antialiased`}>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning className="h-full overflow-hidden">
+      <body
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} h-full min-h-0 overflow-hidden antialiased`}
+      >
+        <ReduxProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

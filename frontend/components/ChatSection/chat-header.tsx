@@ -1,7 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { AudioWaveform, Check, ChevronDown, Download, Link2 } from "lucide-react"
+import {
+  AudioWaveform,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  Download,
+  Languages,
+  Link2,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -19,13 +27,17 @@ const dummyApiModels = [
   "gemini-2.0-flash",
 ]
 
-export function ChatHeader() {
+type ChatHeaderProps = {
+  /** Move Languages + Help here during an active thread (footer hides them). */
+  showUtilityActions?: boolean
+}
+
+export function ChatHeader({ showUtilityActions = false }: ChatHeaderProps) {
   const [selectedModel, setSelectedModel] = useState(dummyApiModels[0])
 
   return (
     <div className="flex items-center justify-between border-b border-border/60 pb-3">
       <div className="flex items-center gap-2">
-        {/* <SidebarTrigger className="size-8 rounded-md border border-border bg-background" /> */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -51,6 +63,16 @@ export function ChatHeader() {
       </div>
 
       <div className="flex items-center gap-1.5">
+        {showUtilityActions ? (
+          <>
+            <Button variant="outline" size="icon" className="size-8 rounded-full bg-background" title="Language">
+              <Languages className="size-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="size-8 rounded-full bg-background" title="Help">
+              <CircleHelp className="size-4" />
+            </Button>
+          </>
+        ) : null}
         <Button variant="outline" size="icon" className="size-8 rounded-md">
           <Link2 className="size-4" />
         </Button>
