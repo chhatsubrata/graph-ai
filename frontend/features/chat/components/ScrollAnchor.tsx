@@ -9,20 +9,26 @@ type ScrollAnchorProps = {
   onJump: () => void
 }
 
-/** Floating control when user has scrolled away from the latest messages */
+/** Floating control when the user has scrolled away from the latest messages */
 export function ScrollAnchor({ visible, onJump }: ScrollAnchorProps) {
   if (!visible) return null
+
   return (
-    <Button
-      type="button"
-      variant="secondary"
-      size="icon"
-      className="pointer-events-auto absolute bottom-5 left-1/2 z-20 size-10 -translate-x-1/2 rounded-full border border-border/60 bg-background shadow-lg"
-      onClick={onJump}
-      aria-label="Jump to latest message"
-      title="Jump to latest"
+    <div
+      className="pointer-events-none absolute inset-x-0 bottom-3 z-[60] flex items-center justify-center px-4"
+      aria-live="polite"
     >
-      <ChevronDown className="size-5" aria-hidden />
-    </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="icon"
+        className="pointer-events-auto size-10 rounded-full border border-border/60 bg-background shadow-lg"
+        onClick={onJump}
+        aria-label="Jump to latest message"
+        title="Jump to bottom"
+      >
+        <ChevronDown className="size-5" aria-hidden />
+      </Button>
+    </div>
   )
 }

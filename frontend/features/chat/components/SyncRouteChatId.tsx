@@ -14,21 +14,11 @@ type SyncRouteChatIdProps = {
  */
 export function SyncRouteChatId({ chatId, children }: SyncRouteChatIdProps) {
   const dispatch = useAppDispatch()
-  const [ready, setReady] = React.useState(false)
 
   React.useLayoutEffect(() => {
     dispatch(ensureChat({ chatId }))
     dispatch(setActiveChat({ chatId }))
-    setReady(true)
   }, [chatId, dispatch])
-
-  if (!ready) {
-    return (
-      <div className="bg-muted/40 flex min-h-svh items-center justify-center text-sm text-muted-foreground">
-        Loading…
-      </div>
-    )
-  }
 
   return <>{children}</>
 }

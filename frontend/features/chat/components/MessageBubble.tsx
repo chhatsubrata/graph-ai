@@ -339,11 +339,11 @@ export const MessageBubble = React.memo(function MessageBubble({
               </div>
             </div>
           ) : (
-            <div className="group flex max-w-[min(100%,85%)] flex-col items-end gap-1">
+            <div className="group flex max-w-[min(100%,80%)] flex-col items-end gap-1">
               <div
                 className={cn(
-                  "min-w-0 rounded-2xl px-4 py-3 text-sm",
-                  "bg-neutral-200/90 text-foreground shadow-sm dark:bg-muted"
+                  "min-w-0 rounded-3xl px-4 py-2.5 text-[15px] leading-relaxed",
+                  "bg-muted/90 text-foreground shadow-none ring-1 ring-border/30 dark:bg-muted/80"
                 )}
               >
                 <UserMessageBody
@@ -443,21 +443,21 @@ export const MessageBubble = React.memo(function MessageBubble({
   const showActionRow = hasAnswerText
 
   return (
-    <div className="flex justify-start">
-      <div className="min-w-0 max-w-[min(100%,720px)] space-y-3">
+    <div className="flex w-full min-w-0 justify-start">
+      <div className="min-w-0 w-full max-w-full space-y-2.5">
         {message.thinkingMarkdown ? (
-          <details className="rounded-xl border border-border/60 bg-neutral-100/90 text-xs dark:bg-muted/30">
-            <summary className="cursor-pointer select-none px-3 py-2 font-medium text-muted-foreground">
+          <details className="rounded-lg border border-border/40 bg-muted/20 text-xs text-muted-foreground dark:bg-muted/15">
+            <summary className="cursor-pointer select-none px-3 py-2 text-[11px] font-medium tracking-wide text-muted-foreground/90">
               Thinking
             </summary>
-            <pre className="whitespace-pre-wrap wrap-break-word border-t border-border/60 px-3 py-2 font-mono text-[11px] leading-relaxed text-muted-foreground">
+            <pre className="whitespace-pre-wrap wrap-break-word border-t border-border/30 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground/95">
               {message.thinkingMarkdown}
             </pre>
           </details>
         ) : null}
 
         {hasAnswerText ? (
-          <div className="min-w-0 max-w-full overflow-x-auto rounded-2xl bg-neutral-100/95 px-1 py-1 text-foreground [contain:layout] dark:bg-muted/20">
+          <div className="min-w-0 max-w-full px-0.5 py-0.5 text-[15px] leading-[1.65] text-foreground">
             <AssistantMarkdown markdown={body} isStreaming={streaming} />
           </div>
         ) : null}
