@@ -1,11 +1,16 @@
 "use client"
 
 import * as React from "react"
+import { shallowEqual } from "react-redux"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAppSelector } from "@/lib/store"
 import { MessageBubble, type EditAndRegeneratePayload } from "@/features/chat/components/MessageBubble"
 import { ScrollAnchor } from "@/features/chat/components/ScrollAnchor"
-import { selectIsStreaming, selectMessagesForChat } from "@/features/chat/model/selectors"
+import {
+  selectChatScrollFingerprint,
+  selectIsStreaming,
+  selectMessagesForChat,
+} from "@/features/chat/model/selectors"
 
 type MessageListProps = {
   chatId: string
@@ -13,22 +18,27 @@ type MessageListProps = {
   onEditAndRegenerate?: (payload: EditAndRegeneratePayload) => void | Promise<void>
 }
 
+/** Below this count, render a simple list (smoother for short threads + streaming). */
+const VIRTUAL_THRESHOLD = 56
+
 export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerate }: MessageListProps) {
-  const messages = useAppSelector((s) => selectMessagesForChat(s, chatId))
+  const messages = useAppSelector((s) => selectMessagesForChat(s, chatId), shallowEqual)
+  const scrollFingerprint = useAppSelector((s) => selectChatScrollFingerprint(s, chatId))
   const isStreaming = useAppSelector((s) => selectIsStreaming(s, chatId))
   const parentRef = React.useRef<HTMLDivElement>(null)
   const [pinnedBottom, setPinnedBottom] = React.useState(true)
 
-  /** Distance from viewport bottom to scroll content bottom to count as “at bottom” (keep small so scroll-up isn’t fighting pin + pb-36). */
+  const useVirtual = messages.length >= VIRTUAL_THRESHOLD
+
+  /** Distance from viewport bottom to scroll content bottom to count as “at bottom”. */
   const PINNED_BOTTOM_PX = 40
-  /** Treat as overflow only when content clearly exceeds the viewport (avoids subpixel / gutter noise). */
   const OVERFLOW_EPS_PX = 2
 
   const virtualizer = useVirtualizer({
-    count: messages.length,
+    count: useVirtual ? messages.length : 0,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 140,
-    overscan: 6,
+    estimateSize: () => 120,
+    overscan: 10,
     measureElement: (el) => el.getBoundingClientRect().height,
   })
 
@@ -54,7 +64,7 @@ export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerat
       syncPinnedToScroll()
     })
     return () => cancelAnimationFrame(id)
-  }, [messages, pinnedBottom, isStreaming, syncPinnedToScroll])
+  }, [scrollFingerprint, pinnedBottom, isStreaming, syncPinnedToScroll])
 
   const onScroll = React.useCallback(() => {
     syncPinnedToScroll()
@@ -71,7 +81,7 @@ export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerat
   const virtualTotalSize = virtualizer.getTotalSize()
   React.useEffect(() => {
     syncPinnedToScroll()
-  }, [messages.length, virtualTotalSize, isStreaming, syncPinnedToScroll])
+  }, [scrollFingerprint, virtualTotalSize, messages.length, isStreaming, syncPinnedToScroll])
 
   React.useEffect(() => {
     const el = parentRef.current
@@ -84,7 +94,8 @@ export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerat
   const scrollToBottom = React.useCallback(() => {
     const el = parentRef.current
     if (!el) return
-    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" })
+    const top = Math.max(0, el.scrollHeight - el.clientHeight)
+    el.scrollTo({ top, behavior: "smooth" })
     setPinnedBottom(true)
   }, [])
 
@@ -92,7 +103,7 @@ export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerat
 
   if (messages.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-4 py-12 text-center text-sm text-muted-foreground">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center bg-muted/40 px-4 py-12 text-center text-sm text-muted-foreground">
         <p className="max-w-sm">Send a message to start. Long pastes collapse into chips like Claude.</p>
       </div>
     )
@@ -105,33 +116,47 @@ export function MessageList({ chatId, onRequestComposerFocus, onEditAndRegenerat
         ref={parentRef}
         onScroll={onScroll}
         onWheel={onWheelScrollPane}
-        className="min-h-0 w-full flex-1 touch-pan-y scroll-pb-36 overflow-y-auto overflow-x-hidden overscroll-y-contain py-2 pb-36 [scrollbar-gutter:stable]"
+        className="thread-message-scroll-pane bg-muted/40 min-h-0 w-full flex-1 touch-pan-y scroll-pb-32 overflow-y-auto overflow-x-hidden overscroll-y-contain py-3 pb-3 [scrollbar-gutter:auto]"
       >
-        <div className="mx-auto w-full max-w-3xl px-3 sm:px-4">
-          <div
-            className="relative w-full"
-            style={{ height: `${virtualizer.getTotalSize()}px` }}
-          >
-            {items.map((virtualRow) => {
-              const message = messages[virtualRow.index]
-              if (!message) return null
-              return (
-                <div
-                  key={message.id}
-                  data-index={virtualRow.index}
-                  ref={virtualizer.measureElement}
-                  className="absolute left-0 right-0 top-0 px-0 py-2 sm:px-1"
-                  style={{ transform: `translateY(${virtualRow.start}px)` }}
-                >
+        <div className="mx-auto w-full max-w-2xl px-3 sm:px-5">
+          {useVirtual ? (
+            <div
+              className="relative w-full"
+              style={{ height: `${virtualizer.getTotalSize()}px` }}
+            >
+              {items.map((virtualRow) => {
+                const message = messages[virtualRow.index]
+                if (!message) return null
+                return (
+                  <div
+                    key={message.id}
+                    data-index={virtualRow.index}
+                    ref={virtualizer.measureElement}
+                    className="absolute left-0 right-0 top-0 px-0 py-2.5"
+                    style={{ transform: `translateY(${virtualRow.start}px)` }}
+                  >
+                    <MessageBubble
+                      message={message}
+                      onRequestComposerFocus={onRequestComposerFocus}
+                      onEditAndRegenerate={onEditAndRegenerate}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {messages.map((message) => (
+                <div key={message.id} className="py-2.5">
                   <MessageBubble
                     message={message}
                     onRequestComposerFocus={onRequestComposerFocus}
                     onEditAndRegenerate={onEditAndRegenerate}
                   />
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <ScrollAnchor visible={!pinnedBottom} onJump={scrollToBottom} />

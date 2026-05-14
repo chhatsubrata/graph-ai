@@ -208,7 +208,7 @@ export const ChatPromptBox = React.forwardRef<ChatPromptBoxHandle, ChatPromptBox
         className={cn(
           variant === "landing"
             ? "mt-10 rounded-3xl border border-border/80 bg-background p-5 shadow-md"
-            : "mt-0 w-full rounded-[1.75rem] border border-border/50 bg-card p-4 shadow-2xl ring-1 ring-border/40"
+            : "mt-0 w-full rounded-2xl border border-border/40 bg-card/95 p-4 shadow-sm ring-0"
         )}
       >
         <input

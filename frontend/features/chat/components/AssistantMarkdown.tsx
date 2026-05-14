@@ -59,7 +59,7 @@ export const AssistantMarkdown = React.memo(function AssistantMarkdown({
   )
 
   return (
-    <div className="prose prose-sm dark:prose-invert min-w-0 max-w-full overflow-x-auto text-sm leading-relaxed [&_li]:wrap-anywhere [&_ol]:my-2 [&_p]:my-2 [&_ul]:my-2 [&_h1]:text-xl [&_h2]:text-lg [&_h3]:text-base">
+    <div className="prose prose-neutral dark:prose-invert prose-p:leading-relaxed min-w-0 max-w-none overflow-x-auto text-[15px] leading-[1.65] [&_li]:wrap-anywhere [&_ol]:my-2 [&_p]:my-3 [&_ul]:my-2 [&_h1]:mb-3 [&_h1]:mt-6 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mb-2 [&_h2]:mt-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mb-2 [&_h3]:mt-4 [&_h3]:text-base [&_h3]:font-semibold">
       <Markdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[[rehypeSanitize, sanitizeSchema]]}
